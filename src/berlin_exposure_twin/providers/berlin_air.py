@@ -39,9 +39,7 @@ class BerlinAirQualityClient:
         timeout: float = 15.0,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
-        resolved_base = base_url or os.getenv(
-            "BERLIN_AIR_API_BASE", "https://luftdaten.berlin.de/api"
-        )
+        resolved_base = base_url or os.getenv("BERLIN_AIR_API_BASE", "https://luftdaten.berlin.de/api")
         self._client = httpx.Client(base_url=resolved_base, timeout=timeout, transport=transport)
 
     def close(self) -> None:
@@ -100,9 +98,7 @@ class BerlinAirQualityClient:
         return observations
 
     @staticmethod
-    def parse_observation(
-        item: dict[str, Any], *, retrieved_at: datetime
-    ) -> EnvironmentalObservation | None:
+    def parse_observation(item: dict[str, Any], *, retrieved_at: datetime) -> EnvironmentalObservation | None:
         if item.get("value") is None:
             return None
         core = str(item["core"])
