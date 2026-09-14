@@ -53,3 +53,15 @@ def test_dwd_client_fetches_recent_product_from_mocked_archive() -> None:
     client.close()
     assert stations[0]["name"] == "Berlin-Tempelhof"
     assert observations[0].value == 4.2
+
+
+def test_dwd_station_metadata_accepts_whitespace_separated_current_layout() -> None:
+    text = (
+        "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland\n"
+        "-----\n"
+        "00433 19510101 20261231 48 52.4675 13.4021 Berlin Tempelhof Berlin\n"
+    )
+    rows = parse_station_metadata(text)
+    assert rows[0]["station_id"] == "00433"
+    assert rows[0]["name"] == "Berlin Tempelhof"
+    assert rows[0]["state"] == "Berlin"
