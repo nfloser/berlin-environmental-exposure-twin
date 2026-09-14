@@ -3,11 +3,50 @@ from __future__ import annotations
 import argparse
 import json
 from datetime import UTC, datetime
+from typing import Any
 
 from berlin_exposure_twin.analytics import leave_one_station_out_validation
+from berlin_exposure_twin.geo import haversine_m
 from berlin_exposure_twin.models import Pollutant
 from berlin_exposure_twin.providers.berlin_air import BerlinAirQualityClient
 from berlin_exposure_twin.providers.dwd import DWDClient, DWDVariable
+
+BERLIN_CENTER = (52.52, 13.405)
+BERLIN_ANALYSIS_BOUNDS = (52.30, 52.70, 13.00, 13.80)
+
+
+def _station_coordinates(station: dict[str, Any]) -> tuple[float, float] | None:
+    try:
+        return float(station["latitude"]), float(station["longitude"])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def _select_berlin_area_station(stations: list[dict[str, Any]]) -> tuple[dict[str, Any], str]:
+    usable = [(station, _station_coordinates(station)) for station in stations]
+    usable = [(station, coordinates) for station, coordinates in usable if coordinates is not None]
+    if not usable:
+        raise RuntimeError("DWD station metadata contains no stations with usable coordinates")
+
+    min_lat, max_lat, min_lon, max_lon = BERLIN_ANALYSIS_BOUNDS
+    inside = [
+        (station, coordinates)
+        for station, coordinates in usable
+        if min_lat <= coordinates[0] <= max_lat and min_lon <= coordinates[1] <= max_lon
+    ]
+    candidates = inside or usable
+    method = "inside_berlin_analysis_bounds" if inside else "nearest_to_berlin_center"
+    center_lat, center_lon = BERLIN_CENTER
+    selected, _coordinates = min(
+        candidates,
+        key=lambda item: haversine_m(
+            center_lat,
+            center_lon,
+            item[1][0],
+            item[1][1],
+        ),
+    )
+    return selected, method
 
 
 def _berlin_smoke(client: BerlinAirQualityClient, pollutant: Pollutant, station_id: str | None) -> dict:
@@ -81,16 +120,14 @@ def _live_validation(client: BerlinAirQualityClient, pollutant: Pollutant) -> di
 
 def _dwd_smoke(client: DWDClient, variable: DWDVariable) -> dict:
     stations = client.stations(variable)
-    berlin = [station for station in stations if station.get("state", "").casefold() == "berlin"]
-    if not berlin:
-        raise RuntimeError(f"DWD station metadata contains no Berlin station for {variable}")
-    station = berlin[0]
+    station, selection_method = _select_berlin_area_station(stations)
     observations = client.recent_observations(station["station_id"], variable)
     values = [observation.value for observation in observations]
     return {
         "checked_at": datetime.now(UTC).isoformat(),
         "variable": variable,
-        "berlin_station_count": len(berlin),
+        "metadata_station_count": len(stations),
+        "selection_method": selection_method,
         "selected_station": station,
         "observation_count": len(observations),
         "units": sorted({observation.unit for observation in observations}),
