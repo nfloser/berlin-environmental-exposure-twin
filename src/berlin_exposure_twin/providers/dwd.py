@@ -145,7 +145,7 @@ class DWDClient:
         if variable in ("air_temperature", "relative_humidity"):
             return ("air_temperature", "TU", "TU_Stundenwerte_Beschreibung_Stationen.txt")
         if variable in ("wind_speed", "wind_direction"):
-            return ("wind", "FF", "FF_Stundenwerte_Beschreibung_Stationen.txt")
+            return ("wind_synop", "F", "F_Stundenwerte_Beschreibung_Stationen.txt")
         raise ValueError(f"Unsupported DWD variable: {variable}")
 
     def stations(self, variable: DWDVariable) -> list[dict[str, Any]]:
