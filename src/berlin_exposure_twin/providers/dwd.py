@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import os
 import re
 import zipfile
 from datetime import UTC, datetime
@@ -114,12 +115,16 @@ def extract_product_from_zip(payload: bytes, *, variable: str) -> list[Meteorolo
 class DWDClient:
     def __init__(
         self,
-        base_url: str = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly",
+        base_url: str | None = None,
         *,
         timeout: float = 20.0,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
-        self._client = httpx.Client(base_url=base_url, timeout=timeout, transport=transport)
+        resolved_base = base_url or os.getenv(
+            "DWD_HOURLY_BASE",
+            "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly",
+        )
+        self._client = httpx.Client(base_url=resolved_base, timeout=timeout, transport=transport)
 
     def close(self) -> None:
         self._client.close()
