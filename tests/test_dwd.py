@@ -34,20 +34,22 @@ def test_dwd_wind_uses_official_ff_and_dd_columns() -> None:
 
 def test_dwd_station_metadata_parser() -> None:
     text = (
-        "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland\n"
+        "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland Abgabe\n"
         "-----\n"
-        "00433 19480101 20261231 48 52.4675 13.4021 Berlin-Tempelhof  Berlin\n"
+        "00433 19480101 20261231 48 52.4675 13.4021 Berlin-Tempelhof Berlin Frei\n"
     )
     rows = parse_station_metadata(text)
     assert rows[0]["station_id"] == "00433"
     assert rows[0]["name"] == "Berlin-Tempelhof"
+    assert rows[0]["state"] == "Berlin"
+    assert rows[0]["release"] == "Frei"
 
 
 def test_dwd_client_fetches_recent_product_from_mocked_archive() -> None:
     station_text = (
-        "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland\n"
+        "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland Abgabe\n"
         "-----\n"
-        "00433 19480101 20261231 48 52.4675 13.4021 Berlin-Tempelhof  Berlin\n"
+        "00433 19480101 20261231 48 52.4675 13.4021 Berlin-Tempelhof Berlin Frei\n"
     )
     product_text = "STATIONS_ID;MESS_DATUM;QN_9;TT_TU;RF_TU;eor\n00433;2026010112;3;4.2;81;eor\n"
     payload = io.BytesIO()
@@ -69,16 +71,17 @@ def test_dwd_client_fetches_recent_product_from_mocked_archive() -> None:
     assert observations[0].value == 4.2
 
 
-def test_dwd_station_metadata_accepts_whitespace_separated_current_layout() -> None:
+def test_dwd_station_metadata_accepts_name_with_spaces() -> None:
     text = (
-        "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland\n"
+        "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland Abgabe\n"
         "-----\n"
-        "00433 19510101 20261231 48 52.4675 13.4021 Berlin Tempelhof Berlin\n"
+        "00433 19510101 20261231 48 52.4675 13.4021 Berlin Tempelhof Berlin Frei\n"
     )
     rows = parse_station_metadata(text)
     assert rows[0]["station_id"] == "00433"
     assert rows[0]["name"] == "Berlin Tempelhof"
     assert rows[0]["state"] == "Berlin"
+    assert rows[0]["release"] == "Frei"
 
 
 def test_dwd_wind_uses_current_synop_dataset() -> None:
