@@ -10,9 +10,7 @@ from berlin_exposure_twin.providers.berlin_air import BerlinAirQualityClient
 from berlin_exposure_twin.providers.dwd import DWDClient, DWDVariable
 
 
-def _berlin_smoke(
-    client: BerlinAirQualityClient, pollutant: Pollutant, station_id: str | None
-) -> dict:
+def _berlin_smoke(client: BerlinAirQualityClient, pollutant: Pollutant, station_id: str | None) -> dict:
     stations = client.stations()
     eligible = [station for station in stations if pollutant in station.available_pollutants]
     if not eligible:
@@ -45,11 +43,7 @@ def _berlin_smoke(
 
 
 def _live_validation(client: BerlinAirQualityClient, pollutant: Pollutant) -> dict:
-    stations = {
-        station.id: station
-        for station in client.stations()
-        if pollutant in station.available_pollutants
-    }
+    stations = {station.id: station for station in client.stations() if pollutant in station.available_pollutants}
     series = {station_id: client.observations(station_id, pollutant) for station_id in stations}
     latest_timestamps = [max(values, key=lambda item: item.timestamp).timestamp for values in series.values() if values]
     if not latest_timestamps:
