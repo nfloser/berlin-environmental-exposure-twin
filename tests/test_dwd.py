@@ -18,6 +18,16 @@ def test_dwd_temperature_has_explicit_unit_and_utc() -> None:
     assert result[0].timestamp.isoformat() == "2026-01-01T12:00:00+00:00"
 
 
+def test_dwd_wind_uses_official_ff_and_dd_columns() -> None:
+    text = "STATIONS_ID;MESS_DATUM;QN_8;FF;DD;eor\n00433;2026010112;3;5.4;220;eor\n"
+    speed = parse_semicolon_product(text, variable="wind_speed")
+    direction = parse_semicolon_product(text, variable="wind_direction")
+    assert speed[0].value == 5.4
+    assert speed[0].unit == "m/s"
+    assert direction[0].value == 220.0
+    assert direction[0].unit == "degree"
+
+
 def test_dwd_station_metadata_parser() -> None:
     text = (
         "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland\n"
