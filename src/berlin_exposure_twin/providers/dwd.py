@@ -65,8 +65,8 @@ def parse_semicolon_product(text: str, *, variable: str) -> list[MeteorologicalO
     mapping = {
         "air_temperature": ("TT_TU", "°C"),
         "relative_humidity": ("RF_TU", "%"),
-        "wind_speed": ("F", "m/s"),
-        "wind_direction": ("D", "degree"),
+        "wind_speed": ("FF", "m/s"),
+        "wind_direction": ("DD", "degree"),
     }
     if variable not in mapping:
         raise ValueError(f"Unsupported DWD variable: {variable}")
@@ -80,7 +80,6 @@ def parse_semicolon_product(text: str, *, variable: str) -> list[MeteorologicalO
         raw_value = row.get(column)
         if raw_value is None or raw_value in {"", "-999"}:
             continue
-        # DWD documents these hourly records against UTC (e.g. "UTC 11").
         timestamp = datetime.strptime(row["MESS_DATUM"], _DWD_TIMESTAMP).replace(tzinfo=UTC)
         qn = row.get("QN_9") or row.get("QN_3") or row.get("QN_8")
         quality = QualityFlag.VALID if qn and qn != "-999" else QualityFlag.UNKNOWN
