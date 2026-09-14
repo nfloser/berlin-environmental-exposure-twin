@@ -3,7 +3,11 @@ import zipfile
 
 import httpx
 
-from berlin_exposure_twin.providers.dwd import DWDClient, parse_semicolon_product, parse_station_metadata
+from berlin_exposure_twin.providers.dwd import SOURCE, DWDClient, parse_semicolon_product, parse_station_metadata
+
+
+def test_dwd_source_preserves_licence() -> None:
+    assert SOURCE.licence == "CC BY 4.0"
 
 
 def test_dwd_missing_sentinel_is_dropped() -> None:
