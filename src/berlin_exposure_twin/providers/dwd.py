@@ -150,9 +150,7 @@ class DWDClient:
         response.raise_for_status()
         return parse_station_metadata(response.text)
 
-    def recent_observations(
-        self, station_id: str, variable: DWDVariable
-    ) -> list[MeteorologicalObservation]:
+    def recent_observations(self, station_id: str, variable: DWDVariable) -> list[MeteorologicalObservation]:
         dataset, code, _metadata_name = self._dataset(variable)
         station = station_id.zfill(5)
         response = self._client.get(f"/{dataset}/recent/stundenwerte_{code}_{station}_akt.zip")
