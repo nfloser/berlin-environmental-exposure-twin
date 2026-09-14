@@ -65,3 +65,10 @@ def test_dwd_station_metadata_accepts_whitespace_separated_current_layout() -> N
     assert rows[0]["station_id"] == "00433"
     assert rows[0]["name"] == "Berlin Tempelhof"
     assert rows[0]["state"] == "Berlin"
+
+
+def test_dwd_wind_uses_current_synop_dataset() -> None:
+    dataset, product_code, metadata_name = DWDClient._dataset("wind_speed")
+    assert dataset == "wind_synop"
+    assert product_code == "F"
+    assert metadata_name == "F_Stundenwerte_Beschreibung_Stationen.txt"
