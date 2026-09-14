@@ -1,4 +1,7 @@
-from berlin_exposure_twin.cli import _select_berlin_area_station
+from berlin_exposure_twin.cli import (
+    _filter_stations_with_recent_archives,
+    _select_berlin_area_station,
+)
 
 
 def test_dwd_smoke_station_selection_uses_coordinates_not_state_label() -> None:
@@ -47,3 +50,14 @@ def test_dwd_smoke_station_selection_falls_back_to_nearest_station() -> None:
 
     assert station["station_id"] == "near"
     assert method == "nearest_to_berlin_center"
+
+
+def test_dwd_smoke_ignores_metadata_without_recent_archive() -> None:
+    stations = [
+        {"station_id": "00399", "latitude": 52.52, "longitude": 13.40},
+        {"station_id": "00433", "latitude": 52.47, "longitude": 13.40},
+    ]
+
+    filtered = _filter_stations_with_recent_archives(stations, {"00433"})
+
+    assert [station["station_id"] for station in filtered] == ["00433"]
