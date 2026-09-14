@@ -39,7 +39,11 @@ class BerlinAirQualityClient:
         timeout: float = 15.0,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
-        resolved_base = base_url or os.getenv("BERLIN_AIR_API_BASE", "https://luftdaten.berlin.de/api")
+        resolved_base = (
+            base_url
+            if base_url is not None
+            else os.environ.get("BERLIN_AIR_API_BASE", "https://luftdaten.berlin.de/api")
+        )
         self._client = httpx.Client(base_url=resolved_base, timeout=timeout, transport=transport)
 
     def close(self) -> None:
