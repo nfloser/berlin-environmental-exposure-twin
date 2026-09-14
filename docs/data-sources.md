@@ -10,7 +10,9 @@ The canonical pollutants initially supported here are NOâ‚‚, PM10, PM2.5 and Oâ‚
 
 **FACT:** DWD CDC publishes hourly station observations including air temperature/humidity and wind, with station metadata and recent/historical product archives. DWD distinguishes recent data whose quality control is not completed from the versioned historical archive. The hourly source documentation expresses example observation times in UTC.
 
-**METHOD:** The repository parses station metadata and semicolon product files into `MeteorologicalObservation`. Missing sentinel `-999` is discarded. DWD hourly timestamps are stored internally as UTC and physical units remain explicit.
+The implemented recent-product paths are deliberately provider-specific: temperature and relative humidity use the hourly `air_temperature/recent` `TU` product, while wind speed and wind direction use the current hourly `wind_synop/recent` `F` product. Those external naming conventions terminate inside the DWD adapter and are not propagated into the canonical domain model.
+
+**METHOD:** The repository parses station metadata and semicolon product files into `MeteorologicalObservation`. Missing sentinel `-999` is discarded. DWD hourly timestamps are stored internally as UTC and physical units remain explicit. The live smoke utility selects a suitable station from coordinates inside a documented Berlin analysis envelope, falling back to the nearest station to Berlin centre if no station lies inside that envelope; it does not rely on a brittle Bundesland text label.
 
 Meteorological values are exposed as context. The baseline does not infer that simultaneous meteorological and pollutant changes prove causation.
 
