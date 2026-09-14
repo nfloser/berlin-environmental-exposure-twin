@@ -22,6 +22,16 @@ def _station_coordinates(station: dict[str, Any]) -> tuple[float, float] | None:
         return None
 
 
+def _filter_stations_with_recent_archives(
+    stations: list[dict[str, Any]], available_station_ids: set[str]
+) -> list[dict[str, Any]]:
+    return [
+        station
+        for station in stations
+        if str(station.get("station_id", "")).zfill(5) in available_station_ids
+    ]
+
+
 def _select_berlin_area_station(stations: list[dict[str, Any]]) -> tuple[dict[str, Any], str]:
     usable: list[tuple[dict[str, Any], tuple[float, float]]] = []
     for station in stations:
@@ -123,13 +133,18 @@ def _live_validation(client: BerlinAirQualityClient, pollutant: Pollutant) -> di
 
 def _dwd_smoke(client: DWDClient, variable: DWDVariable) -> dict:
     stations = client.stations(variable)
-    station, selection_method = _select_berlin_area_station(stations)
+    recent_station_ids = client.available_recent_station_ids(variable)
+    recent_stations = _filter_stations_with_recent_archives(stations, recent_station_ids)
+    if not recent_stations:
+        raise RuntimeError(f"DWD exposes no recent archives with matching station metadata for {variable}")
+    station, selection_method = _select_berlin_area_station(recent_stations)
     observations = client.recent_observations(station["station_id"], variable)
     values = [observation.value for observation in observations]
     return {
         "checked_at": datetime.now(UTC).isoformat(),
         "variable": variable,
         "metadata_station_count": len(stations),
+        "recent_archive_station_count": len(recent_stations),
         "selection_method": selection_method,
         "selected_station": station,
         "observation_count": len(observations),
