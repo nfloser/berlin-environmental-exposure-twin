@@ -34,11 +34,14 @@ def parse_station_metadata(text: str) -> list[dict[str, Any]]:
         return rows
     for line in lines[2:]:
         parts = line.split()
-        if len(parts) < 8 or not parts[0].isdigit():
+        if len(parts) < 9 or not parts[0].isdigit():
             continue
         station_id, start, end, height, lat, lon = parts[:6]
-        name = " ".join(parts[6:-1])
-        state = parts[-1]
+        release = parts[-1]
+        state = parts[-2]
+        name = " ".join(parts[6:-2])
+        if not name:
+            continue
         try:
             rows.append(
                 {
@@ -50,6 +53,7 @@ def parse_station_metadata(text: str) -> list[dict[str, Any]]:
                     "longitude": float(lon),
                     "name": name,
                     "state": state,
+                    "release": release,
                 }
             )
         except ValueError:
