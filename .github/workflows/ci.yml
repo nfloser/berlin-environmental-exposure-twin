@@ -64,9 +64,12 @@ jobs:
       - name: Berlin air-quality smoke check
         continue-on-error: true
         run: berlin-exposure live-smoke --pollutant no2
-      - name: DWD meteorology smoke check
+      - name: DWD temperature smoke check
         continue-on-error: true
         run: berlin-exposure dwd-smoke --variable air_temperature
+      - name: DWD wind smoke check
+        continue-on-error: true
+        run: berlin-exposure dwd-smoke --variable wind_speed
       - name: Real LOSO interpolation validation when coverage permits
         continue-on-error: true
         run: berlin-exposure live-validate --pollutant no2
