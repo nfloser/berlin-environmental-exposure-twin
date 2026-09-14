@@ -20,6 +20,7 @@ SOURCE = DataSource(
     provider="Deutscher Wetterdienst (DWD)",
     dataset="Climate Data Center hourly station observations",
     reference="https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/",
+    licence="CC BY 4.0",
 )
 
 _DWD_TIMESTAMP = "%Y%m%d%H"
