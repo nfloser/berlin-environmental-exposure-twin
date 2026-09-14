@@ -77,7 +77,7 @@ def parse_semicolon_product(text: str, *, variable: str) -> list[MeteorologicalO
         values = [value.strip() for value in raw.split(";")]
         row = dict(zip(headers, values, strict=False))
         raw_value = row.get(column)
-        if raw_value in (None, "", "-999"):
+        if raw_value is None or raw_value in {"", "-999"}:
             continue
         # DWD documents these hourly records against UTC (e.g. "UTC 11").
         timestamp = datetime.strptime(row["MESS_DATUM"], _DWD_TIMESTAMP).replace(tzinfo=UTC)
@@ -121,9 +121,13 @@ class DWDClient:
         timeout: float = 20.0,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
-        resolved_base = base_url or os.getenv(
-            "DWD_HOURLY_BASE",
-            "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly",
+        resolved_base = (
+            base_url
+            if base_url is not None
+            else os.environ.get(
+                "DWD_HOURLY_BASE",
+                "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly",
+            )
         )
         self._client = httpx.Client(base_url=resolved_base, timeout=timeout, transport=transport)
 
