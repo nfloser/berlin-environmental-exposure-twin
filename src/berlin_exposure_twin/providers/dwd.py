@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import os
+import re
 import zipfile
 from datetime import UTC, datetime
 from typing import Any, Literal
@@ -153,6 +154,13 @@ class DWDClient:
         response = self._client.get(f"/{dataset}/recent/{metadata_name}")
         response.raise_for_status()
         return parse_station_metadata(response.text)
+
+    def available_recent_station_ids(self, variable: DWDVariable) -> set[str]:
+        dataset, code, _metadata_name = self._dataset(variable)
+        response = self._client.get(f"/{dataset}/recent/")
+        response.raise_for_status()
+        pattern = re.compile(rf"stundenwerte_{re.escape(code)}_(\d{{5}})_akt\.zip", re.IGNORECASE)
+        return set(pattern.findall(response.text))
 
     def recent_observations(self, station_id: str, variable: DWDVariable) -> list[MeteorologicalObservation]:
         dataset, code, _metadata_name = self._dataset(variable)
