@@ -58,8 +58,7 @@ class ExposureService:
         for point in dense.points:
             if point.timestamp is None:
                 raise ValueError(
-                    "Untimestamped routes require explicit snapshot time via the API; "
-                    "travel speed is never invented"
+                    "Untimestamped routes require explicit snapshot time via the API; travel speed is never invented"
                 )
             estimate = self.estimate_location(
                 pollutant=pollutant,
