@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import UTC, datetime
 from typing import Any
 
@@ -33,12 +34,15 @@ _POLLUTANT_TO_CORE = {value: key for key, value in _CORE_TO_POLLUTANT.items()}
 class BerlinAirQualityClient:
     def __init__(
         self,
-        base_url: str = "https://luftdaten.berlin.de/api",
+        base_url: str | None = None,
         *,
         timeout: float = 15.0,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
-        self._client = httpx.Client(base_url=base_url, timeout=timeout, transport=transport)
+        resolved_base = base_url or os.getenv(
+            "BERLIN_AIR_API_BASE", "https://luftdaten.berlin.de/api"
+        )
+        self._client = httpx.Client(base_url=resolved_base, timeout=timeout, transport=transport)
 
     def close(self) -> None:
         self._client.close()
