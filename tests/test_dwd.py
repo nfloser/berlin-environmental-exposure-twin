@@ -72,3 +72,22 @@ def test_dwd_wind_uses_current_synop_dataset() -> None:
     assert dataset == "wind_synop"
     assert product_code == "F"
     assert metadata_name == "F_Stundenwerte_Beschreibung_Stationen.txt"
+
+
+def test_dwd_discovers_only_station_ids_with_recent_archives() -> None:
+    directory_html = """
+    <a href="stundenwerte_TU_00433_akt.zip">stundenwerte_TU_00433_akt.zip</a>
+    <a href="stundenwerte_TU_00582_akt.zip">stundenwerte_TU_00582_akt.zip</a>
+    <a href="TU_Stundenwerte_Beschreibung_Stationen.txt">metadata</a>
+    """
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/air_temperature/recent/"):
+            return httpx.Response(200, text=directory_html)
+        return httpx.Response(404)
+
+    client = DWDClient(transport=httpx.MockTransport(handler))
+    station_ids = client.available_recent_station_ids("air_temperature")
+    client.close()
+
+    assert station_ids == {"00433", "00582"}
