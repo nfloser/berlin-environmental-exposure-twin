@@ -45,6 +45,14 @@ jobs:
           schema = app.openapi(); assert "/api/v1/exposure/route" in schema["paths"];
           json.dumps(schema); print("OpenAPI schema generated and JSON-serializable")'
 
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - run: docker compose config
+      - run: docker build -t berlin-environmental-exposure-twin:test .
+
   live-sources:
     runs-on: ubuntu-latest
     steps:
