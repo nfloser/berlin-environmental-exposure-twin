@@ -157,8 +157,7 @@ def exposure_route(request: RouteExposureRequest, service: ExposureService = Dep
             raise HTTPException(
                 status_code=422,
                 detail=(
-                    "Untimestamped routes require snapshot_time. The API does not invent travel "
-                    "speed or timestamps."
+                    "Untimestamped routes require snapshot_time. The API does not invent travel speed or timestamps."
                 ),
             )
         if request.snapshot_time.tzinfo is None or request.snapshot_time.utcoffset() is None:
