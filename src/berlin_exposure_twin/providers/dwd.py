@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import io
 import os
-import re
 import zipfile
 from datetime import UTC, datetime
 from typing import Any, Literal
@@ -28,29 +27,31 @@ DWDVariable = Literal["air_temperature", "relative_humidity", "wind_speed", "win
 
 def parse_station_metadata(text: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    lines = [line.rstrip() for line in text.splitlines() if line.strip()]
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
     if len(lines) < 3:
         return rows
     for line in lines[2:]:
-        match = re.match(
-            r"\s*(\d+)\s+(\d{8})\s+(\d{8})\s+(-?\d+)\s+([\d.]+)\s+([\d.]+)\s+(.+?)\s{2,}(.+)$",
-            line,
-        )
-        if not match:
+        parts = line.split()
+        if len(parts) < 8 or not parts[0].isdigit():
             continue
-        station_id, start, end, height, lat, lon, name, state = match.groups()
-        rows.append(
-            {
-                "station_id": station_id.zfill(5),
-                "start": start,
-                "end": end,
-                "height_m": int(height),
-                "latitude": float(lat),
-                "longitude": float(lon),
-                "name": name.strip(),
-                "state": state.strip(),
-            }
-        )
+        station_id, start, end, height, lat, lon = parts[:6]
+        name = " ".join(parts[6:-1])
+        state = parts[-1]
+        try:
+            rows.append(
+                {
+                    "station_id": station_id.zfill(5),
+                    "start": start,
+                    "end": end,
+                    "height_m": int(float(height)),
+                    "latitude": float(lat),
+                    "longitude": float(lon),
+                    "name": name,
+                    "state": state,
+                }
+            )
+        except ValueError:
+            continue
     return rows
 
 
