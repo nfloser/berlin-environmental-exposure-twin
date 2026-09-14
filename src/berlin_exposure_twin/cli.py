@@ -23,8 +23,11 @@ def _station_coordinates(station: dict[str, Any]) -> tuple[float, float] | None:
 
 
 def _select_berlin_area_station(stations: list[dict[str, Any]]) -> tuple[dict[str, Any], str]:
-    usable = [(station, _station_coordinates(station)) for station in stations]
-    usable = [(station, coordinates) for station, coordinates in usable if coordinates is not None]
+    usable: list[tuple[dict[str, Any], tuple[float, float]]] = []
+    for station in stations:
+        coordinates = _station_coordinates(station)
+        if coordinates is not None:
+            usable.append((station, coordinates))
     if not usable:
         raise RuntimeError("DWD station metadata contains no stations with usable coordinates")
 
