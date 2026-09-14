@@ -9,8 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from berlin_exposure_twin.models import Pollutant, Trajectory
-from berlin_exposure_twin.providers.berlin_air import BerlinAirQualityClient, SOURCE as BERLIN_SOURCE
-from berlin_exposure_twin.providers.dwd import DWDClient, DWDVariable, SOURCE as DWD_SOURCE
+from berlin_exposure_twin.providers.berlin_air import SOURCE as BERLIN_SOURCE
+from berlin_exposure_twin.providers.berlin_air import BerlinAirQualityClient
+from berlin_exposure_twin.providers.dwd import SOURCE as DWD_SOURCE
+from berlin_exposure_twin.providers.dwd import DWDClient, DWDVariable
 from berlin_exposure_twin.services import ExposureService
 
 app = FastAPI(
