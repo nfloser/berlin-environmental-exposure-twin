@@ -1,10 +1,10 @@
 # Architecture
 
-## FACT
+## Data sources
 The primary air-quality source is the Berliner Luftgütemessnetz REST interface. The meteorological source is DWD Climate Data Center Open Data.
 
-## METHOD
-The repository uses a provider-adapter architecture:
+## Processing approach
+Data passes through these layers:
 
 1. **Provider adapters** terminate external schemas (`providers/berlin_air.py`, `providers/dwd.py`).
 2. **Canonical domain models** enforce pollutant identity, time awareness, units, provenance and data state.
@@ -13,7 +13,7 @@ The repository uses a provider-adapter architecture:
 5. **Versioned API** exposes machine-readable contracts.
 6. **Static scientific UI** consumes the API and differentiates measured and estimated values visually and textually.
 
-No production component falls back to generated environmental observations. If upstream data are unavailable, the request fails or returns an explicitly missing estimate.
+If upstream data is unavailable, the request fails or returns an explicitly missing estimate. Production components do not generate substitute environmental observations.
 
 ## Integration boundary
 Mobility/resilience twins provide `EPSG:4326` route geometry plus timestamps or an explicit snapshot time. The environmental twin returns pollutant-specific values, data state, method, uncertainty indicators, contributing stations and provenance.
