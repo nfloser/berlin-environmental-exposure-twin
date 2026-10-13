@@ -1,8 +1,8 @@
 # Berlin Environmental Exposure Twin
 
-A research-oriented environmental digital twin for Berlin that combines genuine air-quality observations with meteorological context and transparent spatial/temporal methods to analyse environmental exposure at monitoring stations, arbitrary locations and routes.
+Berlin Environmental Exposure Twin combines official air-quality readings, weather data and documented spatial and temporal methods to assess exposure at monitoring stations, other locations and along routes.
 
-The central scientific rule is simple: **measurements remain measurements; estimates remain estimates.** The system never turns interpolation into an apparent sensor observation and never fabricates missing environmental values.
+Measurements and estimates remain separate throughout the system. Interpolated values are never presented as sensor readings, and missing environmental values are not filled with invented data.
 
 ## What it supports
 
@@ -15,7 +15,7 @@ The central scientific rule is simple: **measurements remain measurements; estim
 - Timestamped trajectory exposure using trapezoidal time integration; untimestamped routes are treated only as spatial concentration comparisons when an explicit snapshot time is supplied.
 - Versioned FastAPI endpoints and OpenAPI schemas.
 - A scientific map UI that visibly distinguishes measured monitoring locations from estimated environmental fields and surfaces uncertainty indicators.
-- CI quality gates for backend tests, linting, formatting, type checking, frontend tests/build and OpenAPI generation, plus non-blocking real-source smoke checks.
+- CI runs backend tests, linting, formatting, type checks, frontend tests/builds and OpenAPI generation. Real-source smoke checks are non-blocking.
 
 ## Quick start
 
